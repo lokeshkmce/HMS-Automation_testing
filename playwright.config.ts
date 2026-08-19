@@ -17,7 +17,7 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  workers: 1,
+  workers: 5,
   reporter: [
     ['list'],
     ['html', { outputFolder: 'reports/html', open: 'never' }],
@@ -34,7 +34,7 @@ export default defineConfig({
     launchOptions: {
       slowMo: 500,   // Smooth 0.5s pause between actions so you can visually see every click & type!
     },
-    trace: 'on',
+    trace: 'retain-on-failure',
     screenshot: 'on',
     video: 'on',
     actionTimeout: 15_000,
