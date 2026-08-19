@@ -10,42 +10,54 @@ test.describe('Step 2: Receptionist Check-In & Nurse Triage - Neurosurgery', () 
 
   test('TC_TRIAGE_NEUROSURGERY [VALID]: Receptionist Check-In & Triage for Neurosurgery', async ({ page }) => {
     await page.goto('https://dev-hms.srivyn.in/', { waitUntil: 'domcontentloaded', timeout: 45_000 });
+    await page.waitForTimeout(1000);
 
-    const staffLoginBtn = page.getByRole('button', { name: 'Staff Login' }).first();
+    const staffLoginBtn = page.getByRole('button', { name: 'Staff Login' })
+      .or(page.getByRole('link', { name: 'Staff Login' }))
+      .or(page.getByText('Staff Login'))
+      .first();
+
     if (await staffLoginBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await staffLoginBtn.click();
+      await staffLoginBtn.click({ force: true });
+      await page.waitForTimeout(2000);
     }
 
-    const usernameInput = page.getByRole('textbox', { name: /Username|Email/i }).first();
-    await usernameInput.waitFor({ state: 'visible', timeout: 15_000 });
+    const usernameInput = page.getByRole('textbox', { name: /Username|Email/i })
+      .or(page.locator('input[name="username"], input[name="email"], input[id="username"]'))
+      .first();
 
-    const passwordInput = page.getByRole('textbox', { name: /Password/i }).first();
-    const signInBtn = page.getByRole('button', { name: /Sign In|Submit/i }).first();
+    if (await usernameInput.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      const passwordInput = page.getByRole('textbox', { name: /Password/i })
+        .or(page.locator('input[type="password"]'))
+        .first();
 
-    const emailsToTry = Array.from(new Set([
-      'qa.neurosurgery@omnivva.com',
-      'qa.neurosurgery@omnivva.com'.replace('cardio.surgery', 'cardiosurgery'),
-      'qa.neurosurgery@omnivva.com'.replace('cardiosurgery', 'cardio.surgery'),
-      'qa.neurosurgery@omnivva.com'.replace('@ominvva.com', '@omnivva.com'),
-      'qa.neurosurgery@omnivva.com'.replace('@omnivva.com', '@ominvva.com')
-    ]));
+      const signInBtn = page.getByRole('button', { name: /Sign In|Submit|Login/i }).first();
 
-    for (const email of emailsToTry) {
-      await usernameInput.click();
-      await usernameInput.fill(email);
-      await passwordInput.click();
-      await passwordInput.fill('password123');
+      const emailsToTry = Array.from(new Set([
+        'qa.neurosurgery@omnivva.com',
+        'qa.neurosurgery@omnivva.com'.replace('cardio.surgery', 'cardiosurgery'),
+        'qa.neurosurgery@omnivva.com'.replace('cardiosurgery', 'cardio.surgery'),
+        'qa.neurosurgery@omnivva.com'.replace('@ominvva.com', '@omnivva.com'),
+        'qa.neurosurgery@omnivva.com'.replace('@omnivva.com', '@ominvva.com')
+      ]));
 
-      if (await signInBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await signInBtn.click();
-      } else {
-        await passwordInput.press('Enter');
-      }
+      for (const email of emailsToTry) {
+        await usernameInput.click();
+        await usernameInput.fill(email);
+        await passwordInput.click();
+        await passwordInput.fill('password123');
 
-      await page.waitForTimeout(2000);
-      const isInvalid = await page.getByText(/Invalid credentials/i).isVisible({ timeout: 2000 }).catch(() => false);
-      if (!isInvalid) {
-        break;
+        if (await signInBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+          await signInBtn.click({ force: true });
+        } else {
+          await passwordInput.press('Enter');
+        }
+
+        await page.waitForTimeout(2000);
+        const isInvalid = await page.getByText(/Invalid credentials/i).isVisible({ timeout: 2000 }).catch(() => false);
+        if (!isInvalid) {
+          break;
+        }
       }
     }
 

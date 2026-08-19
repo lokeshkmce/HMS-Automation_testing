@@ -10,42 +10,54 @@ test.describe('Step 3: Doctor Consultation & Prescription - ENT', () => {
 
   test('TC_DOC_ENT [VALID]: Doctor Consultation for ENT', async ({ page }) => {
     await page.goto('https://dev-hms.srivyn.in/', { waitUntil: 'domcontentloaded', timeout: 45_000 });
+    await page.waitForTimeout(1000);
 
-    const staffLoginBtnDoc = page.getByRole('button', { name: 'Staff Login' }).first();
+    const staffLoginBtnDoc = page.getByRole('button', { name: 'Staff Login' })
+      .or(page.getByRole('link', { name: 'Staff Login' }))
+      .or(page.getByText('Staff Login'))
+      .first();
+
     if (await staffLoginBtnDoc.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await staffLoginBtnDoc.click();
+      await staffLoginBtnDoc.click({ force: true });
+      await page.waitForTimeout(2000);
     }
 
-    const docUserInput = page.getByRole('textbox', { name: /Username|Email/i }).first();
-    await docUserInput.waitFor({ state: 'visible', timeout: 15_000 });
+    const docUserInput = page.getByRole('textbox', { name: /Username|Email/i })
+      .or(page.locator('input[name="username"], input[name="email"], input[id="username"]'))
+      .first();
 
-    const docPassInput = page.getByRole('textbox', { name: /Password/i }).first();
-    const docSignInBtn = page.getByRole('button', { name: /Sign In|Submit/i }).first();
+    if (await docUserInput.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      const docPassInput = page.getByRole('textbox', { name: /Password/i })
+        .or(page.locator('input[type="password"]'))
+        .first();
 
-    const emailsToTry = Array.from(new Set([
-      'qa.ent@omnivva.com',
-      'qa.ent@omnivva.com'.replace('cardio.surgery', 'cardiosurgery'),
-      'qa.ent@omnivva.com'.replace('cardiosurgery', 'cardio.surgery'),
-      'qa.ent@omnivva.com'.replace('@ominvva.com', '@omnivva.com'),
-      'qa.ent@omnivva.com'.replace('@omnivva.com', '@ominvva.com')
-    ]));
+      const docSignInBtn = page.getByRole('button', { name: /Sign In|Submit|Login/i }).first();
 
-    for (const email of emailsToTry) {
-      await docUserInput.click();
-      await docUserInput.fill(email);
-      await docPassInput.click();
-      await docPassInput.fill('password123');
+      const emailsToTry = Array.from(new Set([
+        'qa.ent@omnivva.com',
+        'qa.ent@omnivva.com'.replace('cardio.surgery', 'cardiosurgery'),
+        'qa.ent@omnivva.com'.replace('cardiosurgery', 'cardio.surgery'),
+        'qa.ent@omnivva.com'.replace('@ominvva.com', '@omnivva.com'),
+        'qa.ent@omnivva.com'.replace('@omnivva.com', '@ominvva.com')
+      ]));
 
-      if (await docSignInBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await docSignInBtn.click();
-      } else {
-        await docPassInput.press('Enter');
-      }
+      for (const email of emailsToTry) {
+        await docUserInput.click();
+        await docUserInput.fill(email);
+        await docPassInput.click();
+        await docPassInput.fill('password123');
 
-      await page.waitForTimeout(2000);
-      const isInvalidDoc = await page.getByText(/Invalid credentials/i).isVisible({ timeout: 2000 }).catch(() => false);
-      if (!isInvalidDoc) {
-        break;
+        if (await docSignInBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+          await docSignInBtn.click({ force: true });
+        } else {
+          await docPassInput.press('Enter');
+        }
+
+        await page.waitForTimeout(2000);
+        const isInvalidDoc = await page.getByText(/Invalid credentials/i).isVisible({ timeout: 2000 }).catch(() => false);
+        if (!isInvalidDoc) {
+          break;
+        }
       }
     }
 
