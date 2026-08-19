@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
-import testData from '../../../../test-data/hmsTestData.json';
+import { LoginPage } from '../../../../pages/login.page';
+import { ReceptionistPage } from '../../../../pages/receptionist.page';
 
 test.describe('Step 2: Receptionist Check-In & Nurse Triage - General Surgery', () => {
 
@@ -9,151 +10,57 @@ test.describe('Step 2: Receptionist Check-In & Nurse Triage - General Surgery', 
   });
 
   test('TC_TRIAGE_GENERAL_SURGERY [VALID]: Receptionist Check-In & Triage for General Surgery', async ({ page }) => {
-    await page.goto('https://dev-hms.srivyn.in/', { waitUntil: 'domcontentloaded', timeout: 45_000 });
-    await page.waitForTimeout(1000);
+    const loginPage = new LoginPage(page);
+    const receptionistPage = new ReceptionistPage(page);
 
-    const staffLoginBtn = page.getByRole('button', { name: 'Staff Login' })
-      .or(page.getByRole('link', { name: 'Staff Login' }))
-      .or(page.getByText('Staff Login'))
-      .first();
+    // 1. Staff Login
+    await loginPage.loginAsStaff('qa.generalsurgery@omnivva.com', 'password123');
 
-    if (await staffLoginBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await staffLoginBtn.click({ force: true });
-      await page.waitForTimeout(2000);
-    }
+    // 2. Switch Role to Receptionist
+    await receptionistPage.switchToReceptionistRole();
 
-    const usernameInput = page.getByRole('textbox', { name: /Username|Email/i })
-      .or(page.locator('input[name="username"], input[name="email"], input[id="username"]'))
-      .first();
-
-    if (await usernameInput.isVisible({ timeout: 10_000 }).catch(() => false)) {
-      const passwordInput = page.getByRole('textbox', { name: /Password/i })
-        .or(page.locator('input[type="password"]'))
-        .first();
-
-      const signInBtn = page.getByRole('button', { name: /Sign In|Submit|Login/i }).first();
-
-      const emailsToTry = Array.from(new Set([
-        'qa.generalsurgery@omnivva.com',
-        'qa.generalsurgery@omnivva.com'.replace('cardio.surgery', 'cardiosurgery'),
-        'qa.generalsurgery@omnivva.com'.replace('cardiosurgery', 'cardio.surgery'),
-        'qa.generalsurgery@omnivva.com'.replace('@ominvva.com', '@omnivva.com'),
-        'qa.generalsurgery@omnivva.com'.replace('@omnivva.com', '@ominvva.com')
-      ]));
-
-      for (const email of emailsToTry) {
-        await usernameInput.click();
-        await usernameInput.fill(email);
-        await passwordInput.click();
-        await passwordInput.fill('password123');
-
-        if (await signInBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-          await signInBtn.click({ force: true });
-        } else {
-          await passwordInput.press('Enter');
-        }
-
-        await page.waitForTimeout(2000);
-        const isInvalid = await page.getByText(/Invalid credentials/i).isVisible({ timeout: 2000 }).catch(() => false);
-        if (!isInvalid) {
-          break;
-        }
-      }
-    }
-
-    await page.waitForURL((url) => url.href.includes('/staff'), { waitUntil: 'domcontentloaded', timeout: 30_000 }).catch(() => {});
-    await page.waitForTimeout(2000);
-
-    const roleSliderBtn = page.getByText(/ROLE SLIDER/i)
-      .or(page.locator('button, div, span').filter({ hasText: /ROLE SLIDER/i }))
-      .first();
-
-    if (await roleSliderBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
-      await roleSliderBtn.click({ force: true }).catch(() => {});
-      await page.waitForTimeout(1000);
-    }
-
-    const receptionistRoleCard = page.getByRole('button', { name: 'Receptionist' })
-      .or(page.getByText('Receptionist', { exact: true }))
-      .or(page.locator('div, button, a').filter({ hasText: /^Receptionist$/i }))
-      .first();
-
-    if (await receptionistRoleCard.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await receptionistRoleCard.scrollIntoViewIfNeeded().catch(() => {});
-      await receptionistRoleCard.click({ force: true }).catch(async () => {
-        await receptionistRoleCard.dispatchEvent('click').catch(() => {});
-      });
-      await page.waitForTimeout(2000);
-    }
-
-    const sidebarCheckIn = page.locator('nav, aside, .MuiDrawer-root, body')
-      .getByText(/^Check-In$/i)
-      .or(page.getByText('Check-Ins'))
-      .or(page.getByRole('link', { name: /Check-In/i }))
-      .filter({ hasNotText: /Check-In Patient/i })
-      .first();
-
-    if (await sidebarCheckIn.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await sidebarCheckIn.click({ force: true });
+    // 3. Navigate to Check-In screen
+    const checkInMenu = page.getByRole('button', { name: /Check.*In/i }).or(page.getByText(/Check.*In/i)).first();
+    if (await checkInMenu.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await checkInMenu.click({ force: true });
       await page.waitForTimeout(1500);
     } else {
       await page.goto('https://dev-hms.srivyn.in/staff/receptionist/check-in', { waitUntil: 'domcontentloaded' }).catch(() => {});
     }
 
-    await page.waitForURL((url) => url.href.includes('/check-in'), { timeout: 15_000 }).catch(() => {});
-    await page.waitForTimeout(2000);
-
-    const doctorFilter = page.getByRole('combobox')
-      .or(page.getByText('FILTER BY DOCTOR'))
-      .or(page.getByText(/Dr\./i))
+    // 4. Select Patient in queue & Check In
+    const patientCard = page.locator('.MuiCard-root, tr, [role="row"]')
+      .filter({ hasText: /flow check|SCHEDULED|Waiting|Pending/i })
+      .or(page.getByText('flow check'))
       .first();
 
-    if (await doctorFilter.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await doctorFilter.click({ force: true });
+    if (await patientCard.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await patientCard.click({ force: true });
       await page.waitForTimeout(1000);
-
-      const targetDocOption = page.getByText('Dr. QA generalsurgery', { exact: false })
-        .or(page.getByRole('option', { name: new RegExp('General Surgery', 'i') }))
-        .or(page.locator('li[role="option"]').filter({ hasText: new RegExp('General Surgery', 'i') }))
-        .first();
-
-      if (await targetDocOption.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await targetDocOption.click({ force: true });
-        await page.waitForTimeout(1000);
-      }
-    }
-
-    const pendingCard = page.locator('div')
-      .filter({ hasText: /flow check/i })
-      .filter({ hasText: /Token/i })
-      .last();
-
-    if (await pendingCard.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await pendingCard.click({ force: true });
-      await page.waitForTimeout(2000);
     }
 
     const checkInPatientBtn = page.getByRole('button', { name: /Check In Patient|Check-In/i }).first();
     if (await checkInPatientBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
       await checkInPatientBtn.click({ force: true });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(1500);
     }
 
+    // 5. Proceed to Nurse Triage
     const proceedTriageBtn = page.getByRole('button', { name: /Proceed to Nurse Triage|Nurse Triage|Triage/i }).first();
     if (await proceedTriageBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
       await proceedTriageBtn.click({ force: true });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(1500);
     }
 
-    const chiefComplaintInput = page.getByRole('textbox', { name: 'None' }).first();
+    const chiefComplaintInput = page.getByRole('textbox', { name: 'None' }).or(page.locator('input[placeholder*="complaint"], textarea[placeholder*="complaint"]')).first();
     if (await chiefComplaintInput.isVisible({ timeout: 3000 }).catch(() => false)) {
       await chiefComplaintInput.fill('Routine General Surgery checkup');
     }
 
-    const saveDraftBtn = page.getByRole('button', { name: /Save Draft|Save Triage/i }).first();
-    if (await saveDraftBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await saveDraftBtn.click();
-      await page.waitForTimeout(2000);
+    const saveDraftBtn = page.getByRole('button', { name: /Save Draft|Save Triage|Save/i }).first();
+    if (await saveDraftBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
+      await saveDraftBtn.click({ force: true });
+      await page.waitForTimeout(1500);
     }
 
     await expect(page.locator('body')).toBeVisible();

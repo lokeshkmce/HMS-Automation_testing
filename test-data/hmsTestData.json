@@ -27,7 +27,7 @@
     { "specialty": "Maternity", "username": "qa.maternity@omnivva.com", "password": "password123" },
     { "specialty": "Nephrology", "username": "qa.nephrology@omnivva.com", "password": "password123" },
     { "specialty": "Neurology", "username": "qa.neurology@omnivva.com", "password": "password123" },
-    { "specialty": "Cardio Surgery", "username": "qa.cardio.surgery@omnivva.com", "password": "password123" },
+    { "specialty": "Cardio Surgery", "username": "qa.cardiosurgery@omnivva.com", "password": "password123" },
     { "specialty": "Dental", "username": "qa.dental@omnivva.com", "password": "password123" },
     { "specialty": "ENT", "username": "qa.ent@omnivva.com", "password": "password123" },
     { "specialty": "Family Medicine", "username": "qa.family@ominvva.com", "password": "password123" },
@@ -89,5 +89,128 @@
     "date": "2026-08-12",
     "symptoms": "Fever and Routine Checkup",
     "upiId": "upi@upi"
+  },
+  "prescriptionData": {
+    "validPrescriptions": [
+      {
+        "testCase": "Single Medicine Prescription",
+        "medicines": [
+          {
+            "name": "dolo",
+            "selectText": "Dolo 650",
+            "dose": "650 mg",
+            "morn": "1",
+            "aftn": "0",
+            "night": "1",
+            "duration": "5 days",
+            "when": "After food"
+          }
+        ],
+        "instructions": "Take with warm water after meals. Avoid cold drinks and oily food.",
+        "followUp": "Review after 5 days if fever or symptoms persist."
+      },
+      {
+        "testCase": "Multiple Medicines Prescription",
+        "medicines": [
+          {
+            "name": "dolo",
+            "selectText": "Dolo 650",
+            "dose": "650 mg",
+            "morn": "1",
+            "aftn": "0",
+            "night": "1",
+            "duration": "5 days",
+            "when": "After food"
+          },
+          {
+            "name": "amoxicillin",
+            "selectText": "Amoxicillin",
+            "dose": "500 mg",
+            "morn": "1",
+            "aftn": "0",
+            "night": "1",
+            "duration": "5 days",
+            "when": "After food"
+          }
+        ],
+        "instructions": "Complete full antibiotic course. Take antacid if gastric irritation occurs.",
+        "followUp": "Review in OPD after 1 week."
+      }
+    ],
+    "invalidPrescriptions": {
+      "emptyMedicine": {
+        "testCase": "Submit Prescription Without Medicine",
+        "instructions": "Take bed rest and plenty of fluids.",
+        "followUp": "Review in 2 weeks"
+      },
+      "nonExistentMedicine": {
+        "testCase": "Search Non-Existent Medicine Query",
+        "searchTerm": "XYZNonExistentMed999@#$"
+      },
+      "zeroDosage": {
+        "testCase": "All Timing Frequencies Set to Zero",
+        "medicines": [
+          {
+            "name": "dolo",
+            "selectText": "Dolo 650",
+            "dose": "650 mg",
+            "morn": "0",
+            "aftn": "0",
+            "night": "0",
+            "duration": "3 days",
+            "when": "After food"
+          }
+        ],
+        "instructions": "Zero frequency prescription validation test.",
+        "followUp": "Review in 3 days"
+      },
+      "boundaryAdvice": {
+        "testCase": "XSS & Special Characters in Instructions & FollowUp",
+        "medicines": [
+          {
+            "name": "dolo",
+            "selectText": "Dolo 650",
+            "dose": "650 mg",
+            "morn": "1",
+            "aftn": "0",
+            "night": "1",
+            "duration": "3 days",
+            "when": "After food"
+          }
+        ],
+        "instructions": "<script>alert('xss')</script> & ' \" ; -- \n Special instructions for clinical care.",
+        "followUp": "<b>Review</b> after 3 days & follow up."
+      }
+    }
+  },
+  "labTestData": {
+    "validTests": [
+      {
+        "testCase": "Single Test - CBC",
+        "searchQuery": "CBC",
+        "testName": "Complete Blood Count (CBC)",
+        "category": "Hematology"
+      },
+      {
+        "testCase": "Multiple Tests - CBC and Blood Sugar",
+        "tests": [
+          "Complete Blood Count (CBC)",
+          "Blood Sugar (Fasting & PP)"
+        ]
+      }
+    ],
+    "categories": [
+      "All",
+      "Biochemistry",
+      "Hematology",
+      "Immunology",
+      "Microbiology",
+      "Cardiology",
+      "Radiology"
+    ],
+    "invalidQueries": {
+      "nonExistent": "XYZNonExistentLabTest999@#$",
+      "specialChars": "<script>alert('test')</script>"
+    }
   }
 }

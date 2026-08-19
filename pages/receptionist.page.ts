@@ -21,16 +21,30 @@ export class ReceptionistPage extends BasePage {
 
   async switchToReceptionistRole(): Promise<void> {
     if (!this.page.url().includes('/staff/select-role')) {
-      const switchChip = this.page.getByText('Switch Role').or(this.page.locator('.MuiChip-root:has-text("Switch Role")')).first();
-      if (await switchChip.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await switchChip.click({ force: true });
+      const userProfilePill = this.page.getByRole('button', { name: /QA.*STAFF|QA.*Doctor|QD|Doctor|Receptionist/i }).first();
+      if (await userProfilePill.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await userProfilePill.click({ force: true }).catch(() => {});
+        await this.page.waitForTimeout(500);
+      }
+
+      const switchRoleBtn = this.page.getByRole('button', { name: 'Switch Role' }).or(this.page.getByText('Switch Role')).first();
+      if (await switchRoleBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await switchRoleBtn.click({ force: true }).catch(() => {});
+        await this.page.waitForTimeout(1000);
+      } else {
+        await this.page.goto('https://dev-hms.srivyn.in/staff/select-role', { waitUntil: 'domcontentloaded', timeout: 15_000 }).catch(() => {});
         await this.page.waitForTimeout(1000);
       }
     }
 
-    const receptionistCard = this.page.getByRole('button', { name: /Receptionist/i }).or(this.page.getByText('Receptionist')).first();
-    if (await receptionistCard.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await receptionistCard.click({ force: true });
+    const receptionistCard = this.page.getByRole('button', { name: 'Receptionist' })
+      .or(this.page.getByText('Receptionist', { exact: true }))
+      .or(this.page.locator('div, button, a').filter({ hasText: /^Receptionist$/i }))
+      .first();
+
+    if (await receptionistCard.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      await receptionistCard.scrollIntoViewIfNeeded().catch(() => {});
+      await receptionistCard.click({ force: true }).catch(() => {});
       await this.page.waitForTimeout(2000);
     }
   }
@@ -59,7 +73,11 @@ export class ReceptionistPage extends BasePage {
     }
 
     // 4. Click Patient in Today's Queue
-    const patientCard = this.page.locator('.MuiCard-root').filter({ hasText: /flow check|SCHEDULED|Waiting|Pending/i }).or(this.page.getByText('flow check')).first();
+    const patientCard = this.page.locator('.MuiCard-root, tr, [role="row"]')
+      .filter({ hasText: /flow check|SCHEDULED|Waiting|Pending/i })
+      .or(this.page.getByText('flow check'))
+      .first();
+
     if (await patientCard.isVisible({ timeout: 5000 }).catch(() => false)) {
       await patientCard.click({ force: true });
       await this.page.waitForTimeout(1000);

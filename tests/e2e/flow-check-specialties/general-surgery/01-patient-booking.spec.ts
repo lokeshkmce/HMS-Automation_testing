@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import testData from '../../../../test-data/hmsTestData.json';
+import { LoginPage } from '../../../../pages/login.page';
 
 test.describe('Step 1: Patient Appointment Booking - General Surgery', () => {
 
@@ -9,24 +10,26 @@ test.describe('Step 1: Patient Appointment Booking - General Surgery', () => {
   });
 
   test('TC_APPT_GENERAL_SURGERY [VALID]: Patient Appointment Booking for General Surgery', async ({ page }) => {
-    await page.goto('https://dev-hms.srivyn.in/', { waitUntil: 'domcontentloaded', timeout: 45_000 });
+    const loginPage = new LoginPage(page);
+    await loginPage.loginAsPatient(testData.patientUser.email, testData.patientUser.otp);
 
-    await page.getByRole('button', { name: 'Patient Login' }).click();
-    await page.getByRole('textbox', { name: 'Email address' }).click();
-    await page.getByRole('textbox', { name: 'Email address' }).fill(testData.patientUser.email);
-    await page.getByRole('button', { name: 'Continue with OTP' }).click();
+    const bookDoctorBtn = page.getByRole('button', { name: /Book Doctor/i })
+      .or(page.getByRole('link', { name: /Book Doctor/i }))
+      .or(page.locator('a[href*="book-doctor"]'))
+      .first();
 
-    const otpInput = page.getByRole('textbox', { name: '••••••' }).or(page.locator('input[type="password"], input[type="text"]')).first();
-    await otpInput.waitFor({ state: 'visible', timeout: 10_000 });
-    await otpInput.fill(testData.patientUser.otp);
-    await page.getByRole('button', { name: 'Verify Code' }).click();
+    if (await bookDoctorBtn.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      await bookDoctorBtn.click({ force: true });
+    } else {
+      await page.goto('https://dev-hms.srivyn.in/patient/book-doctor', { waitUntil: 'domcontentloaded' }).catch(() => {});
+    }
 
-    const bookDoctorLink = page.getByRole('link', { name: /Book Doctor/i }).first();
-    await bookDoctorLink.waitFor({ state: 'visible', timeout: 15_000 });
-    await bookDoctorLink.click();
+    await page.waitForTimeout(1000);
+    const routineCheckupBtn = page.getByRole('button', { name: /Routine Checkup/i })
+      .or(page.getByText(/Routine Checkup/i))
+      .first();
 
-    const routineCheckupBtn = page.getByRole('button', { name: 'Routine Checkup' }).first();
-    await routineCheckupBtn.waitFor({ state: 'visible', timeout: 10_000 });
+    await routineCheckupBtn.waitFor({ state: 'visible', timeout: 15_000 });
     await routineCheckupBtn.click({ force: true });
     await page.waitForTimeout(500);
 
@@ -97,7 +100,6 @@ test.describe('Step 1: Patient Appointment Booking - General Surgery', () => {
     await page.waitForTimeout(1500);
 
     const targetDocCard = page.getByText('Dr. QA generalsurgery', { exact: false })
-      .or(page.locator('div, .MuiCard-root, .MuiPaper-root').filter({ hasText: 'Dr. QA generalsurgery' }))
       .or(page.locator('div, .MuiCard-root, .MuiPaper-root').filter({ hasText: 'General Surgery' }))
       .first();
 

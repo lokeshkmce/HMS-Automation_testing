@@ -5,7 +5,10 @@ blob-report
 playwright/.cache
 allure-results
 allure-report
+reports/
+.tools/
 .auth
 .auth/*
 *.log
 .DS_Store
+
