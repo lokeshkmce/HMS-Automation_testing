@@ -56,7 +56,9 @@ export async function fillAnyInput(page: Page, labelText: string, valueText?: st
       .first()
       .fill(valueText, { timeout: 2000 });
     return;
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 
   // Strategy 2: Locate input/textarea via parent of label
   try {
@@ -68,7 +70,9 @@ export async function fillAnyInput(page: Page, labelText: string, valueText?: st
       .first();
     await input.fill(valueText, { timeout: 2000, force: true });
     return;
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 
   // Strategy 3: Click the label to focus its field, then type via keyboard
   // Reliable for MUI textareas that are not directly accessible via label
@@ -80,7 +84,9 @@ export async function fillAnyInput(page: Page, labelText: string, valueText?: st
     await page.keyboard.press('Control+a');
     await page.keyboard.type(valueText, { delay: 30 });
     return;
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 
   // Strategy 4: Tab through fields until we land on an empty textarea, then type
   try {
@@ -97,7 +103,9 @@ export async function fillAnyInput(page: Page, labelText: string, valueText?: st
         return;
       }
     }
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 
   console.log(`⚠  Could not fill "${labelText}"`);
 }
@@ -246,7 +254,9 @@ export async function fillInterests(page: Page, interests: string[], notes: stri
             .first()
             .click({ force: true, timeout: 2000 });
           selected = true;
-        } catch {}
+        } catch {
+    /* ignore */
+  }
         await page.waitForTimeout(400);
       }
 
@@ -267,7 +277,9 @@ export async function fillInterests(page: Page, interests: string[], notes: stri
             await page.keyboard.press('Tab');
             await page.waitForTimeout(100);
           }
-        } catch {}
+        } catch {
+    /* ignore */
+  }
       }
 
       if (!selected) console.log(`⚠  Could not select interest chip: ${interest}`);
@@ -307,7 +319,9 @@ export async function fillInterests(page: Page, interests: string[], notes: stri
         await page.keyboard.press('Control+a');
         await page.keyboard.type(notes, { delay: 25 });
         filled = true;
-      } catch {}
+      } catch {
+    /* ignore */
+  }
     }
 
     // Strategy 3: Tab into textarea and type
@@ -324,7 +338,9 @@ export async function fillInterests(page: Page, interests: string[], notes: stri
             break;
           }
         }
-      } catch {}
+      } catch {
+    /* ignore */
+  }
     }
 
     if (!filled) console.log(`⚠  Could not fill notes textarea`);

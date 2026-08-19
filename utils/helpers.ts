@@ -19,6 +19,7 @@ export async function waitForHidden(locator: Locator, timeoutMs = 10_000): Promi
  * Wait for network to be idle (no pending requests for 500ms).
  */
 export async function waitForNetworkIdle(page: Page, timeoutMs = 15_000): Promise<void> {
+  // eslint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState('networkidle', { timeout: timeoutMs });
 }
 
