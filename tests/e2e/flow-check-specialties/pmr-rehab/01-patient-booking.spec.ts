@@ -36,45 +36,52 @@ test.describe('Step 1: Patient Appointment Booking - PMR & Rehab', () => {
     await page.waitForTimeout(1500);
 
     const facilityList = [
-      'CareBridge District Hospital',
+      'Omnivva Central Hospital',
       'CareBridge Rural Health Center',
+      'CareBridge District Hospital',
       'LifeLine Super Specialty',
       'LifeLine Trauma Center',
       'MedCare General Hospital',
       'MedCare Polyclinic',
       'Omnivva Cardiac Center',
-      'Omnivva Central Hospital',
       'Wellspring First AYUSH Center',
       'Wellspring First Clinic'
     ];
 
-    let currentFacilityText = 'Select Facility';
-    let specialtyFound = false;
+    let specialtySelected = false;
 
-    const firstWord = 'PMR & Rehab'.split(' ')[0];
+    for (const facName of facilityList) {
+      await page.keyboard.press('Escape').catch(() => {});
+      await page.waitForTimeout(200);
 
-    for (let i = 0; i < facilityList.length; i++) {
-      const facName = facilityList[i];
+      const facCombobox = page.locator('div').filter({ hasText: /^Facility$/ }).locator('[role="combobox"]')
+        .or(page.getByText('Select Facility'))
+        .or(page.getByRole('combobox').nth(1))
+        .first();
 
-      const facilityTrigger = page.getByText(currentFacilityText).first();
-      await facilityTrigger.click();
-      await page.waitForTimeout(400);
+      if (await facCombobox.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await facCombobox.click({ force: true });
+        await page.waitForTimeout(400);
 
-      const facOption = page.getByRole('option', { name: facName }).first();
-      if (await facOption.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await facOption.click();
-        currentFacilityText = facName;
-        await page.waitForTimeout(600);
-      } else {
-        await page.keyboard.press('Escape').catch(() => {});
-        await page.waitForTimeout(300);
-        continue;
+        const facOption = page.getByRole('option', { name: facName }).first();
+        if (await facOption.isVisible({ timeout: 2000 }).catch(() => false)) {
+          await facOption.click({ force: true });
+          await page.waitForTimeout(600);
+        } else {
+          await page.keyboard.press('Escape').catch(() => {});
+          continue;
+        }
       }
 
-      const specialtyTrigger = page.getByText('Select Specialty').first();
-      await specialtyTrigger.click();
-      await page.waitForTimeout(400);
+      const specCombobox = page.locator('div').filter({ hasText: /^Specialty$/ }).locator('[role="combobox"]')
+        .or(page.getByText('Select Specialty'))
+        .first();
 
+      await specCombobox.waitFor({ state: 'visible', timeout: 5000 });
+      await specCombobox.click({ force: true });
+      await page.waitForTimeout(500);
+
+      const firstWord = 'PMR & Rehab'.split(' ')[0];
       const targetOption = page.getByRole('option', { name: 'PMR & Rehab', exact: true })
         .or(page.getByRole('option', { name: new RegExp('^' + 'PMR .* Rehab' + '$', 'i') }))
         .or(page.getByRole('option', { name: new RegExp(firstWord, 'i') }))
@@ -82,9 +89,9 @@ test.describe('Step 1: Patient Appointment Booking - PMR & Rehab', () => {
         .first();
 
       if (await targetOption.isVisible({ timeout: 1500 }).catch(() => false)) {
-        await targetOption.click();
-        await page.waitForTimeout(800);
-        specialtyFound = true;
+        await targetOption.click({ force: true });
+        await page.waitForTimeout(600);
+        specialtySelected = true;
         break;
       } else {
         await page.keyboard.press('Escape').catch(() => {});
@@ -93,50 +100,60 @@ test.describe('Step 1: Patient Appointment Booking - PMR & Rehab', () => {
     }
 
     const nextBtn2 = page.getByRole('button', { name: 'Next' }).first();
+    await nextBtn2.waitFor({ state: 'visible', timeout: 10_000 });
     await nextBtn2.click({ force: true });
     await page.waitForTimeout(1500);
 
-    const targetDocCard = page.getByText('Dr. QA pmr.rehab', { exact: false })
-      .or(page.locator('div, .MuiCard-root, .MuiPaper-root').filter({ hasText: 'Dr. QA pmr.rehab' }))
-      .or(page.locator('div, .MuiCard-root, .MuiPaper-root').filter({ hasText: 'PMR & Rehab' }))
+    const targetDocText = page.getByText(new RegExp('Dr\\. QA pmr.rehab', 'i'))
+      .or(page.getByText(new RegExp('Dr\\.\\s*QA\\s*' + 'pmr', 'i')))
       .first();
 
-    if (await targetDocCard.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await targetDocCard.click({ force: true });
-      await page.waitForTimeout(800);
-    } else {
-      const feeCard = page.locator('div').filter({ hasText: /₹500|Fee/i }).first();
-      if (await feeCard.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await feeCard.click({ force: true });
-        await page.waitForTimeout(600);
-      }
+    await expect(targetDocText, `Target QA Doctor "Dr. QA pmr.rehab" must be visible on Doctor Selection page`).toBeVisible({ timeout: 15_000 });
+    await targetDocText.click({ force: true });
+    await page.waitForTimeout(600);
+
+    const docCardContainer = targetDocText.locator('xpath=ancestor::div[contains(@class, "MuiCard") or contains(@class, "Paper") or contains(@class, "card")][1]');
+    const selectBtn = docCardContainer.locator('button, [role="button"], div').filter({ hasText: /₹|Fee|Select|Book/i }).first();
+    if (await selectBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await selectBtn.click({ force: true });
+      await page.waitForTimeout(600);
     }
 
-    await page.getByRole('button', { name: 'Next' }).click();
-
-    const dateInput = page.locator('input[type="date"]').first();
-    if (await dateInput.isVisible({ timeout: 5000 }).catch(() => false)) {
-      const dateObj = new Date();
-      let dateStr = dateObj.toISOString().split('T')[0];
-      await dateInput.fill(dateStr);
-      await page.waitForTimeout(1000);
-
-      const noSlotsText = page.getByText(/No slots available/i);
-      if (await noSlotsText.isVisible({ timeout: 2000 }).catch(() => false)) {
-        dateObj.setDate(dateObj.getDate() + 1);
-        dateStr = dateObj.toISOString().split('T')[0];
-        await dateInput.fill(dateStr);
-        await page.waitForTimeout(1000);
-      }
-    }
+    const nextBtnStep3 = page.getByRole('button', { name: 'Next' }).first();
+    await nextBtnStep3.click({ force: true });
+    await page.waitForTimeout(1500);
 
     const availableSlot = page.getByRole('button', { name: /\d{1,2}:\d{2}\s*(AM|PM)?/i })
       .or(page.locator('button').filter({ hasText: /:\d{2}/i }))
       .filter({ hasNotText: /Next|Back|Cancel/i })
       .first();
 
-    await availableSlot.waitFor({ state: 'visible', timeout: 10_000 });
-    await availableSlot.click();
+    let slotFound = false;
+
+    if (await availableSlot.isVisible({ timeout: 3000 }).catch(() => false)) {
+      slotFound = true;
+    } else {
+      const dateInput = page.locator('input[type="date"]').first();
+      if (await dateInput.isVisible({ timeout: 3000 }).catch(() => false)) {
+        for (let dayOffset = 0; dayOffset <= 7; dayOffset++) {
+          const d = new Date();
+          d.setDate(d.getDate() + dayOffset);
+          const dateStr = d.toISOString().split('T')[0];
+          await dateInput.fill(dateStr);
+          await page.waitForTimeout(800);
+          if (await availableSlot.isVisible({ timeout: 2000 }).catch(() => false)) {
+            slotFound = true;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!slotFound) {
+      throw new Error(`Process Stopped: Target QA Doctor "Dr. QA pmr.rehab" has 0 available slots! Skipping booking for non-QA doctors as requested.`);
+    }
+
+    await availableSlot.click({ force: true });
     await page.getByRole('button', { name: 'Next' }).click();
 
     const symptomsInput = page.getByRole('textbox', { name: /Describe your symptoms/i }).or(page.locator('textarea, input[placeholder*="symptoms"]')).first();

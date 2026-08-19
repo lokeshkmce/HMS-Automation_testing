@@ -1,166 +1,159 @@
 import { test, expect } from '@playwright/test';
-import testData from '../../../../test-data/hmsTestData.json';
 
 test.describe('Step 3: Doctor Consultation & Prescription - Ophthalmology', () => {
 
-  test.beforeEach(async ({ page, context }) => {
-    test.setTimeout(120_000);
-    await context.clearCookies().catch(() => {});
-  });
-
   test('TC_DOC_OPHTHALMOLOGY [VALID]: Doctor Consultation for Ophthalmology', async ({ page }) => {
-    await page.goto('https://dev-hms.srivyn.in/', { waitUntil: 'domcontentloaded', timeout: 45_000 });
-    await page.waitForTimeout(1000);
+    test.setTimeout(120_000);
+    await page.goto('https://dev-hms.srivyn.in/');
 
-    const staffLoginBtnDoc = page.getByRole('button', { name: 'Staff Login' })
-      .or(page.getByRole('link', { name: 'Staff Login' }))
-      .or(page.getByText('Staff Login'))
+    await page.getByRole('button', { name: 'Staff Login' }).click();
+    await page.getByRole('textbox', { name: 'Username or Email' }).fill('qa.opthalmology@omnivva.com');
+    await page.getByRole('textbox', { name: 'Password' }).click();
+    await page.getByRole('textbox', { name: 'Password' }).fill('password123');
+    await page.getByRole('textbox', { name: 'Password' }).press('Enter');
+    await page.getByRole('button', { name: 'Sign In' }).click();
+
+    const switchRoleBtn = page.getByRole('button', { name: /QA|STAFF|Switch Role/i })
+      .or(page.getByRole('button', { name: 'Role Slider' }))
+      .or(page.getByText('Role Slider'))
       .first();
-
-    if (await staffLoginBtnDoc.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await staffLoginBtnDoc.click({ force: true });
-      await page.waitForTimeout(2000);
-    }
-
-    const docUserInput = page.getByRole('textbox', { name: /Username|Email/i })
-      .or(page.locator('input[name="username"], input[name="email"], input[id="username"]'))
-      .first();
-
-    if (await docUserInput.isVisible({ timeout: 10_000 }).catch(() => false)) {
-      const docPassInput = page.getByRole('textbox', { name: /Password/i })
-        .or(page.locator('input[type="password"]'))
-        .first();
-
-      const docSignInBtn = page.getByRole('button', { name: /Sign In|Submit|Login/i }).first();
-
-      const emailsToTry = Array.from(new Set([
-        'qa.opthalmology@omnivva.com',
-        'qa.opthalmology@omnivva.com'.replace('cardio.surgery', 'cardiosurgery'),
-        'qa.opthalmology@omnivva.com'.replace('cardiosurgery', 'cardio.surgery'),
-        'qa.opthalmology@omnivva.com'.replace('@ominvva.com', '@omnivva.com'),
-        'qa.opthalmology@omnivva.com'.replace('@omnivva.com', '@ominvva.com')
-      ]));
-
-      for (const email of emailsToTry) {
-        await docUserInput.click();
-        await docUserInput.fill(email);
-        await docPassInput.click();
-        await docPassInput.fill('password123');
-
-        if (await docSignInBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-          await docSignInBtn.click({ force: true });
-        } else {
-          await docPassInput.press('Enter');
-        }
-
-        await page.waitForTimeout(2000);
-        const isInvalidDoc = await page.getByText(/Invalid credentials/i).isVisible({ timeout: 2000 }).catch(() => false);
-        if (!isInvalidDoc) {
-          break;
-        }
+    if (await switchRoleBtn.isVisible({ timeout: 8000 }).catch(() => false)) {
+      await switchRoleBtn.click({ force: true }).catch(() => {});
+      await page.waitForTimeout(1000);
+      const subSwitch = page.getByRole('button', { name: 'Switch Role' }).first();
+      if (await subSwitch.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await subSwitch.click({ force: true });
+        await page.waitForTimeout(1000);
       }
     }
 
-    await page.waitForURL((url) => url.href.includes('/staff'), { waitUntil: 'domcontentloaded', timeout: 30_000 }).catch(() => {});
+    const docRoleCard = page.getByRole('button', { name: 'Doctor' }).or(page.getByText('Doctor', { exact: true })).first();
+    await docRoleCard.waitFor({ state: 'visible', timeout: 10_000 });
+    await docRoleCard.click({ force: true });
     await page.waitForTimeout(2000);
 
-    const roleSliderBtnDoc = page.getByText(/ROLE SLIDER/i)
-      .or(page.locator('button, div, span').filter({ hasText: /ROLE SLIDER/i }))
+    const docConsoleBtn = page.getByRole('button', { name: 'Doctor Console' }).or(page.locator('a[href*="doctor"]')).first();
+    await docConsoleBtn.click({ force: true });
+    await page.waitForTimeout(2500);
+
+    const targetRow = page.locator('tr, [role="row"]').filter({ hasText: /flow check/i }).last();
+    const startConsultBtn = targetRow.getByRole('button', { name: /Start Consult|In Consult/i })
+      .or(page.getByRole('cell', { name: 'Start Consult' }))
+      .or(page.getByRole('button', { name: 'Start Consult' }))
+      .or(page.getByRole('button', { name: 'In Consult' }))
       .first();
 
-    if (await roleSliderBtnDoc.isVisible({ timeout: 4000 }).catch(() => false)) {
-      await roleSliderBtnDoc.click({ force: true }).catch(() => {});
-      await page.waitForTimeout(1000);
-    }
-
-    const doctorRoleCard = page.getByRole('button', { name: 'Doctor' })
-      .or(page.getByText('Doctor', { exact: true }))
-      .or(page.locator('div, button, a').filter({ hasText: /^Doctor$/i }))
-      .first();
-
-    if (await doctorRoleCard.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await doctorRoleCard.scrollIntoViewIfNeeded().catch(() => {});
-      await doctorRoleCard.click({ force: true }).catch(async () => {
-        await doctorRoleCard.dispatchEvent('click').catch(() => {});
-      });
+    if (await startConsultBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await startConsultBtn.click({ force: true });
       await page.waitForTimeout(2000);
     }
 
-    const doctorConsoleBtn = page.getByRole('button', { name: /Doctor Console/i })
-      .or(page.getByRole('link', { name: /Doctor Console/i }))
-      .or(page.getByText(/Doctor Console/i))
-      .first();
-
-    if (await doctorConsoleBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await doctorConsoleBtn.click({ force: true });
+    const inConsultBtn = page.getByRole('button', { name: 'In Consult' }).first();
+    if (await inConsultBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await inConsultBtn.click({ force: true });
       await page.waitForTimeout(2000);
     }
 
-    const flowCheckRow = page.locator('tr, [role="row"], .MuiPaper-root, .MuiCard-root')
-      .filter({ hasText: /flow check/i })
-      .first();
-
-    if (await flowCheckRow.isVisible({ timeout: 5000 }).catch(() => false)) {
-      const startConsultBtn = flowCheckRow.getByRole('button', { name: /Start Consult/i })
-        .or(flowCheckRow.getByText(/Start Consult/i))
-        .first();
-
-      if (await startConsultBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
-        await startConsultBtn.click({ force: true });
-        await page.waitForTimeout(2000);
-      }
+    const nextBtn1 = page.getByRole('button', { name: 'Next >' }).first();
+    if (await nextBtn1.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await nextBtn1.click({ force: true });
+      await page.waitForTimeout(1500);
     }
 
-    const provisionalDiagnosisInput = page.getByRole('textbox', { name: /Provisional Diagnosis/i })
-      .or(page.locator('input[placeholder*="Diagnosis"], textarea[placeholder*="Diagnosis"]'))
-      .first();
-
-    if (await provisionalDiagnosisInput.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await provisionalDiagnosisInput.fill('Diagnosis - Ophthalmology');
+    const nextBtn2 = page.getByRole('button', { name: 'Next >' }).first();
+    if (await nextBtn2.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await nextBtn2.click({ force: true });
+      await page.waitForTimeout(1500);
     }
 
-    const writePrescriptionBtn = page.getByRole('button', { name: /Write Prescription/i }).first();
-    if (await writePrescriptionBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
-      await writePrescriptionBtn.click({ force: true });
+    const addPrescriptionBtn = page.getByRole('button', { name: 'Add Prescription' }).first();
+    if (await addPrescriptionBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
+      await addPrescriptionBtn.click({ force: true });
       await page.waitForTimeout(1500);
 
-      const addMedBtn = page.getByRole('button', { name: /Add Medicine/i }).first();
-      if (await addMedBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await addMedBtn.click({ force: true });
-        await page.waitForTimeout(500);
-      }
-
-      const medicineSearchInput = page.getByRole('textbox', { name: /Tab Aspirin|Medicine|Search/i })
-        .or(page.locator('input[placeholder*="Aspirin"]'))
-        .first();
-
-      if (await medicineSearchInput.isVisible({ timeout: 4000 }).catch(() => false)) {
-        await medicineSearchInput.fill('dolo');
+      const medInput = page.getByRole('textbox', { name: 'e.g. Tab Aspirin' }).first();
+      if (await medInput.isVisible({ timeout: 4000 }).catch(() => false)) {
+        await medInput.click();
+        await medInput.fill('dolo');
         await page.waitForTimeout(1000);
-        let medOption = page.locator('div, li').filter({ hasText: new RegExp('Dolo 650', 'i') }).first();
 
-        if (!(await medOption.isVisible({ timeout: 2000 }).catch(() => false))) {
-          await medicineSearchInput.fill('dolo');
-          await page.waitForTimeout(1000);
-          medOption = page.locator('div, li').filter({ hasText: /Dolo 650/i }).first();
-        }
+        const medOption = page.locator('div').filter({ hasText: new RegExp('^' + 'Dolo 650' + '$', 'i') })
+          .or(page.locator('div').filter({ hasText: /^Dolo 650$/ }))
+          .first();
 
         if (await medOption.isVisible({ timeout: 3000 }).catch(() => false)) {
           await medOption.click({ force: true });
+          await page.waitForTimeout(800);
         }
       }
 
-      const savePrescriptionBtn = page.getByRole('button', { name: /Verify & Save Prescription|Save Prescription/i }).first();
+      const savePrescriptionBtn = page.getByRole('button', { name: 'Verify & Save Prescription' }).first();
       if (await savePrescriptionBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
         await savePrescriptionBtn.click({ force: true });
         await page.waitForTimeout(2000);
       }
     }
 
-    const completeConsultBtn = page.getByRole('button', { name: /Complete Consultation/i }).first();
-    if (await completeConsultBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await completeConsultBtn.click({ force: true });
-      await page.waitForTimeout(2000);
+    const nextBtn3 = page.getByRole('button', { name: 'Next >' }).first();
+    if (await nextBtn3.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await nextBtn3.click({ force: true });
+      await page.waitForTimeout(1500);
+    }
+
+    const nextBtn4 = page.getByRole('button', { name: 'Next >' }).first();
+    if (await nextBtn4.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await nextBtn4.click({ force: true });
+      await page.waitForTimeout(1500);
+    }
+
+    const suggestLabBtn = page.getByRole('button', { name: 'Suggest Lab' }).first();
+    if (await suggestLabBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
+      await suggestLabBtn.click({ force: true });
+      await page.waitForTimeout(1500);
+
+      const labCheckbox = page.getByRole('row', { name: 'Blood Sugar (Fasting & PP)' }).getByRole('checkbox').first();
+      if (await labCheckbox.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await labCheckbox.check({ force: true }).catch(() => {});
+      }
+
+      const suggestPatientBtn = page.getByRole('button', { name: 'Suggest to Patient' }).first();
+      if (await suggestPatientBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await suggestPatientBtn.click({ force: true });
+        await page.waitForTimeout(1500);
+      }
+    }
+
+    const suggestRadiologyBtn = page.getByRole('button', { name: 'Suggest Radiology' }).first();
+    if (await suggestRadiologyBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
+      await suggestRadiologyBtn.click({ force: true });
+      await page.waitForTimeout(1500);
+
+      const mammoBtn = page.getByRole('button', { name: 'MAMMOGRAPHY' }).first();
+      if (await mammoBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await mammoBtn.click({ force: true });
+      }
+
+      const petBtn = page.getByRole('button', { name: 'PET' }).first();
+      if (await petBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await petBtn.click({ force: true });
+      }
+
+      const xrayBtn = page.getByRole('button', { name: 'XRAY' }).first();
+      if (await xrayBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await xrayBtn.click({ force: true });
+      }
+
+      const suggestScanBtn = page.getByRole('button', { name: 'Suggest Scan' }).first();
+      if (await suggestScanBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await suggestScanBtn.click({ force: true });
+        await page.waitForTimeout(1500);
+      }
+    }
+
+    const submitConsultBtn = page.getByRole('button', { name: 'Submit Consult' }).first();
+    if (await submitConsultBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await submitConsultBtn.click({ force: true });
+      await page.waitForTimeout(2500);
     }
 
     await expect(page.locator('body')).toBeVisible();
