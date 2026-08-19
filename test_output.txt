@@ -1,0 +1,94 @@
+2026-04-22 09:58:50.364 [[32MINFO[39M] Global setup started (env: dev)
+2026-04-22 09:58:50.478 [[32MINFO[39M] Performing login to save storage state…
+2026-04-22 09:58:54.206 [[32MINFO[39M] Login successful — saving storage state
+2026-04-22 09:58:54.250 [[32MINFO[39M] Global setup completed
+
+Running 8 tests using 4 workers
+
+  ✓  4 [chromium] › tests/e2e/advancedTests.spec.ts:73:7 › Advanced Validations & Boundary Tests › Cancel completely resets the form state (6.4s)
+  ✓  3 [chromium] › tests/e2e/advancedTests.spec.ts:56:7 › Advanced Validations & Boundary Tests › Form State Persistence on Navigation (9.5s)
+  ✓  5 [chromium] › tests/e2e/advancedTests.spec.ts:91:7 › Advanced Validations & Boundary Tests › Invalid File Upload format rejected (8.5s)
+  ✘  1 [chromium] › tests/e2e/advancedTests.spec.ts:11:7 › Advanced Validations & Boundary Tests › Boundary: Phone number minimum and maximum digits (18.0s)
+  ✘  2 [chromium] › tests/e2e/advancedTests.spec.ts:32:7 › Advanced Validations & Boundary Tests › Boundary: Full Name max characters limit (18.4s)
+  ✓  7 [chromium] › tests/e2e/advancedTests.spec.ts:130:7 › Advanced Validations & Boundary Tests › A11y: Keyboard Navigation focuses actionable buttons (4.4s)
+  ✓  6 [chromium] › tests/e2e/advancedTests.spec.ts:112:7 › Advanced Validations & Boundary Tests › Date of Birth Future Date Validation (10.6s)
+  ✓  8 [chromium] › tests/e2e/advancedTests.spec.ts:144:7 › Advanced Validations & Boundary Tests › Security: Basic XSS payload is safely sanitized (6.2s)
+2026-04-22 09:59:19.602 [[32MINFO[39M] Global teardown completed — cleaning up resources
+
+
+  1) [chromium] › tests/e2e/advancedTests.spec.ts:11:7 › Advanced Validations & Boundary Tests › Boundary: Phone number minimum and maximum digits 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('must be exactly 10 digits').or(getByText('invalid phone'))
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByText('must be exactly 10 digits').or(getByText('invalid phone'))[22m
+
+
+      19 |     await helpers.fillAnyInput(page, 'Primary Phone', '12345');
+      20 |     await page.getByRole('button', { name: 'Next' }).click();
+    > 21 |     await expect(page.getByText('must be exactly 10 digits', { exact: false }).or(page.getByText('invalid phone', { exact: false }))).toBeVisible();
+         |                                                                                                                                       ^
+      22 |
+      23 |     // Test too long or alphabetic
+      24 |     await helpers.fillAnyInput(page, 'Primary Phone', '1234567890123'); // or ABC
+        at /Users/gokul/Gokul/Main/CMCS/automation-test-framework-main/tests/e2e/advancedTests.spec.ts:21:135
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports/test-results/advancedTests-Advanced-Val-d199e--minimum-and-maximum-digits-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    reports/test-results/advancedTests-Advanced-Val-d199e--minimum-and-maximum-digits-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: reports/test-results/advancedTests-Advanced-Val-d199e--minimum-and-maximum-digits-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/advancedTests.spec.ts:32:7 › Advanced Validations & Boundary Tests › Boundary: Full Name max characters limit 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Max length').or(getByText('too long'))
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByText('Max length').or(getByText('too long'))[22m
+
+
+      47 |     const val = await inputLocator.inputValue().catch(() => '');
+      48 |     if (val.length === 300) {
+    > 49 |       await expect(page.getByText('Max length', { exact: false }).or(page.getByText('too long', { exact: false }))).toBeVisible();
+         |                                                                                                                     ^
+      50 |     } else {
+      51 |       // Meaning it restricted the length to less than 300
+      52 |       expect(val.length).toBeLessThan(300);
+        at /Users/gokul/Gokul/Main/CMCS/automation-test-framework-main/tests/e2e/advancedTests.spec.ts:49:117
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    reports/test-results/advancedTests-Advanced-Val-1b276-l-Name-max-characters-limit-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    reports/test-results/advancedTests-Advanced-Val-1b276-l-Name-max-characters-limit-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: reports/test-results/advancedTests-Advanced-Val-1b276-l-Name-max-characters-limit-chromium/error-context.md
+
+  2 failed
+    [chromium] › tests/e2e/advancedTests.spec.ts:11:7 › Advanced Validations & Boundary Tests › Boundary: Phone number minimum and maximum digits 
+    [chromium] › tests/e2e/advancedTests.spec.ts:32:7 › Advanced Validations & Boundary Tests › Boundary: Full Name max characters limit 
+  6 passed (29.3s)
+\n📊 Excel (CSV) Report successfully generated at: /Users/gokul/Gokul/Main/CMCS/automation-test-framework-main/playwright-report/Playwright_Execution_Report.csv
+
+To open last HTML report run:
+
+  npx playwright show-report reports/html
+

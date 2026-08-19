@@ -1,0 +1,52 @@
+{
+  "credentials": {
+    "email": "cjr@navacle.com",
+    "password": "Welcome@123"
+  },
+  "urls": {
+    "dashboard": "https://sit-educore.navacle.com/en/counsellor/dashboard",
+    "login": "https://sit-educore.navacle.com/en/login",
+    "enquiry": "https://sit-educore.navacle.com/en/enquiries/new"
+  },
+  "enquiryData": {
+    "parentInfo": {
+      "preferredBranch": "Moti Nagar & Sanath Nagar",
+      "fullName": "John Automation",
+      "email": "john.auto@example.com",
+      "primaryPhone": "9876543210",
+      "alternatePhone": "0123456789",
+      "occupation": "Tech Lead",
+      "company": "Tech Corp",
+      "annualIncome": "₹10 - 25 Lakhs",
+      "residentialAddress": "123 Framework St, Testville",
+      "anySibling": true
+    },
+    "studentInfo": {
+      "studentName": "John",
+      "dob": "2016-06-06",
+      "currentClass": "Class 3",
+      "applyingFor": "Class 4",
+      "currentSchool": "KVMHSS School",
+      "boardPreference": "CBSE",
+      "documents": {
+        "birthCertificate": "test-data/dummy.pdf",
+        "aadharCard": "test-data/dummy.pdf",
+        "transferCertificate": "test-data/dummy.pdf"
+      }
+    },
+    "admissionIntent": {
+      "decisionTimeline": "Immediately (this week)"
+    },
+    "transport": {
+      "required": false
+    },
+    "interests": {
+      "chips": ["Sports", "Music"],
+      "notes": "Interested in sports and music."
+    },
+    "specialNeeds": null,
+    "academics": null,
+    "communication": null,
+    "additionalInfo": "Nil"
+  }
+}

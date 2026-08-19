@@ -1,0 +1,93 @@
+{
+  "patientUser": {
+    "email": "flowcheck@gmail.com",
+    "otp": "0000"
+  },
+  "staffUser": {
+    "username": "qa.derma@omnivva.com",
+    "password": "password123"
+  },
+  "doctorUser": {
+    "username": "qa.derma@omnivva.com",
+    "password": "password123"
+  },
+  "doctorSpecialties": [
+    { "specialty": "Psychiatry", "username": "qa.psychiatry@omnivva.com", "password": "password123" },
+    { "specialty": "Pulmonology", "username": "qa.pulmonology@omnivva.com", "password": "password123" },
+    { "specialty": "Rheumatology", "username": "qa.rheumatology@omnivva.com", "password": "password123" },
+    { "specialty": "PMR & Rehab", "username": "qa.pmr.rehab@omnivva.com", "password": "password123" },
+    { "specialty": "Urology", "username": "qa.urology@omnivva.com", "password": "password123" },
+    { "specialty": "Neurosurgery", "username": "qa.neurosurgery@omnivva.com", "password": "password123" },
+    { "specialty": "Oncology", "username": "qa.oncology@omnivva.com", "password": "password123" },
+    { "specialty": "Ophthalmology", "username": "qa.opthalmology@omnivva.com", "password": "password123" },
+    { "specialty": "Orthopedics", "username": "qa.orthopedics@omnivva.com", "password": "password123" },
+    { "specialty": "Plastic Surgery", "username": "qa.plastic.surgery@omnivva.com", "password": "password123" },
+    { "specialty": "Infectious Disease", "username": "qa.infectious.disease@omnivva.com", "password": "password123" },
+    { "specialty": "Internal Medicine", "username": "qa.internal.medicine@omnivva.com", "password": "password123" },
+    { "specialty": "Maternity", "username": "qa.maternity@omnivva.com", "password": "password123" },
+    { "specialty": "Nephrology", "username": "qa.nephrology@omnivva.com", "password": "password123" },
+    { "specialty": "Neurology", "username": "qa.neurology@omnivva.com", "password": "password123" },
+    { "specialty": "Cardio Surgery", "username": "qa.cardio.surgery@omnivva.com", "password": "password123" },
+    { "specialty": "Dental", "username": "qa.dental@omnivva.com", "password": "password123" },
+    { "specialty": "ENT", "username": "qa.ent@omnivva.com", "password": "password123" },
+    { "specialty": "Family Medicine", "username": "qa.family@ominvva.com", "password": "password123" },
+    { "specialty": "Gastroenterology", "username": "qa.gastro@ominvva.com", "password": "password123" },
+    { "specialty": "Dermatology", "username": "qa.derma@omnivva.com", "password": "password123" },
+    { "specialty": "Emergency & Endocrinology", "username": "qa.emergency.endo@ominvva.com", "password": "password123" },
+    { "specialty": "General Surgery", "username": "qa.generalsurgery@omnivva.com", "password": "password123" }
+  ],
+  "adminUser": {
+    "username": "qa@omnivva.com",
+    "password": "password123"
+  },
+  "invalidUser": {
+    "wrongPasswordUser": {
+      "username": "qa@omnivva.com",
+      "password": "wrongpassword999"
+    },
+    "wrongEmailUser": {
+      "username": "invalid.user99@omnivva.com",
+      "password": "password123"
+    },
+    "invalidEmailFormat": {
+      "username": "qaomnivvacom",
+      "password": "password123"
+    },
+    "missingDomainEmail": {
+      "username": "qa@omnivva",
+      "password": "password123"
+    },
+    "emptyPasswordUser": {
+      "username": "qa@omnivva.com",
+      "password": ""
+    },
+    "emptyEmailUser": {
+      "username": "",
+      "password": "password123"
+    },
+    "sqlInjectionEmail": {
+      "username": "' OR '1'='1",
+      "password": "password123"
+    },
+    "whitespaceEmail": {
+      "username": "  qa@omnivva.com  ",
+      "password": "password123"
+    },
+    "uppercaseEmail": {
+      "username": "QA@OMNIVVA.COM",
+      "password": "password123"
+    },
+    "xssPayloadEmail": {
+      "username": "<script>alert(1)</script>",
+      "password": "password123"
+    }
+  },
+  "bookingData": {
+    "specialty": "Dermatology",
+    "facility": "Omnivva Central Hospital",
+    "doctorName": "Dr. QA dermatology",
+    "date": "2026-08-12",
+    "symptoms": "Fever and Routine Checkup",
+    "upiId": "upi@upi"
+  }
+}

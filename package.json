@@ -1,0 +1,40 @@
+{
+  "name": "single-test-file",
+  "version": "1.0.0",
+  "description": "Unified Playwright automation framework — Counsellor Portal + Parent Portal",
+  "scripts": {
+    "clean:allure": "rm -rf reports/allure-results && mkdir -p reports/allure-results",
+    "test": "node scripts/interactive.js",
+    "test:all": "npm run clean:allure && npx playwright test tests/e2e/excelUnified.spec.ts",
+    "test:headed": "node scripts/interactive.js",
+    "test:debug": "npx playwright test tests/e2e/excelUnified.spec.ts --debug",
+    "excel:convert": "node scripts/convert-excel-to-json.js",
+    "report:html": "npx playwright show-report reports/html",
+    "report:allure:generate": "npx allure generate reports/allure-results -o reports/allure-report --clean",
+    "report:allure:open": "npx allure open reports/allure-report",
+    "allure:open": "npx allure generate reports/allure-results -o reports/allure-report --clean && npx allure open reports/allure-report",
+    "test:login:admin": "rimraf reports/allure-results && npx playwright test tests/e2e/login/admin-login.spec.ts && npm run allure:open",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"**/*.{ts,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,json,md}\""
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^25.5.2",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "allure-commandline": "^2.30.0",
+    "allure-playwright": "^3.0.0",
+    "dotenv": "^16.4.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-playwright": "^2.1.0",
+    "prettier": "^3.4.0",
+    "typescript": "^5.7.0",
+    "winston": "^3.17.0"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}

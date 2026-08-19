@@ -1,0 +1,29 @@
+[
+  {
+    "tcId": "TC_PAT_001",
+    "module": "Patient Portal",
+    "scenario": "Patient Portal Login with OTP",
+    "preConditions": "Patient Email registered",
+    "steps": "1. Navigate to / 2. Enter Email 3. Enter OTP 4. Click Verify",
+    "expectedResult": "User successfully logged in and redirected to Patient Dashboard",
+    "status": "PASS"
+  },
+  {
+    "tcId": "TC_PAT_004",
+    "module": "Patient Portal",
+    "scenario": "Complete Patient OPD Appointment Booking & Payment",
+    "preConditions": "Patient logged in",
+    "steps": "1. Click Book Doctor 2. Select Routine Checkup 3. Pick Specialty & Facility 4. Choose Doctor & Slot 5. Enter Symptoms 6. Pay via UPI",
+    "expectedResult": "Appointment booked successfully and payment confirmed",
+    "status": "PASS"
+  },
+  {
+    "tcId": "TC_STAFF_001",
+    "module": "Staff Portal",
+    "scenario": "Staff Login Flow",
+    "preConditions": "Staff account exists",
+    "steps": "1. Click Staff Login 2. Enter Username & Password 3. Press Enter",
+    "expectedResult": "Staff logged in successfully and redirected to Staff Dashboard",
+    "status": "PASS"
+  }
+]
