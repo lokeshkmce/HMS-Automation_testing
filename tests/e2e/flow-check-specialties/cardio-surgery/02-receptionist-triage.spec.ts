@@ -58,9 +58,10 @@ test.describe('Step 2: Receptionist Check-In & Nurse Triage - Cardio Surgery', (
     await allDoctorsFilter.click({ force: true });
     await page.waitForTimeout(600);
 
-    const docOption = page.getByRole('option', { name: 'Dr. QA Cardio' })
+    const docOption = page.getByRole('option', { name: 'Dr. QA Cardio Surgery' })
+      .or(page.getByRole('option', { name: new RegExp('Dr\\. QA Cardio Surgery', 'i') }))
       .or(page.getByRole('option', { name: new RegExp('Dr\\. QA Cardio', 'i') }))
-      .or(page.getByRole('option', { name: new RegExp('QA\\s*' + 'cardio', 'i') }))
+      .or(page.getByRole('option', { name: new RegExp('QA\\s*cardio', 'i') }))
       .first();
 
     await expect(docOption, `QA Doctor "Dr. QA Cardio" must be visible in dropdown`).toBeVisible({ timeout: 15_000 });

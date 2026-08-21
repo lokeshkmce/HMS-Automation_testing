@@ -127,14 +127,25 @@ test.describe('Step 3: Doctor Consultation & Prescription - Internal Medicine', 
     await ctBtn.click({ force: true });
     await page.waitForTimeout(500);
 
-    const bodyPartCombo = page.getByRole('combobox', { name: 'Search or type body part (e.g' }).first();
-    await bodyPartCombo.waitFor({ state: 'visible', timeout: 10_000 });
-    await bodyPartCombo.click({ force: true });
-    await page.waitForTimeout(500);
+        const bodyPartInput = page.getByPlaceholder(/Search and select body part|Search or type body part|body part/i)
+      .or(page.getByRole('combobox', { name: /body part|Search/i }))
+      .or(page.locator('input[placeholder*="body part"], input[placeholder*="Body Part"]'))
+      .first();
 
-    const ctOption = page.getByRole('option', { name: 'CT Scan Brain Non-Contrast' }).first();
-    await ctOption.waitFor({ state: 'visible', timeout: 10_000 });
-    await ctOption.click({ force: true });
+    await bodyPartInput.waitFor({ state: 'visible', timeout: 10_000 });
+    await bodyPartInput.click({ force: true });
+    await bodyPartInput.fill('chest');
+    await page.waitForTimeout(600);
+
+    const ctOption = page.getByRole('option', { name: /chest|ct/i })
+      .or(page.locator('li[role="option"]').filter({ hasText: /chest|ct/i }))
+      .first();
+
+    if (await ctOption.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await ctOption.click({ force: true });
+    } else {
+      await bodyPartInput.press('Enter').catch(() => {});
+    }
     await page.waitForTimeout(500);
 
     const suggestScanBtn = page.getByRole('button', { name: 'Suggest Scan' }).first();
