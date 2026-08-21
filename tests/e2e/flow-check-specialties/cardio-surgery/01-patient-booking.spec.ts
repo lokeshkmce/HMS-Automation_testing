@@ -81,11 +81,10 @@ test.describe('Step 1: Patient Appointment Booking - Cardio Surgery', () => {
       await specCombobox.click({ force: true });
       await page.waitForTimeout(500);
 
-      const firstWord = 'Cardio Surgery'.split(' ')[0];
       const targetOption = page.getByRole('option', { name: 'Cardio Surgery', exact: true })
-        .or(page.getByRole('option', { name: new RegExp('^' + 'Cardio Surgery' + '$', 'i') }))
-        .or(page.getByRole('option', { name: new RegExp(firstWord, 'i') }))
-        .or(page.locator('li[role="option"]').filter({ hasText: new RegExp(firstWord, 'i') }))
+        .or(page.getByRole('option', { name: /^Cardio\s*Surgery$/i }))
+        .or(page.locator('li[role="option"]').filter({ hasText: /^Cardio\s*Surgery$/i }))
+        .or(page.getByRole('option', { name: new RegExp('Cardio Surgery', 'i') }))
         .first();
 
       if (await targetOption.isVisible({ timeout: 1500 }).catch(() => false)) {
@@ -104,8 +103,10 @@ test.describe('Step 1: Patient Appointment Booking - Cardio Surgery', () => {
     await nextBtn2.click({ force: true });
     await page.waitForTimeout(1500);
 
-    const targetDocText = page.getByText(new RegExp('Dr\\. QA Cardio', 'i'))
-      .or(page.getByText(new RegExp('Dr\\.\\s*QA\\s*' + 'cardio', 'i')))
+    const targetDocText = page.getByText(new RegExp('Dr\\. QA Cardio Surgery', 'i'))
+      .or(page.getByText(new RegExp('Dr\\.\\s*QA\\s*Cardio\\s*Surgery', 'i')))
+      .or(page.getByText(new RegExp('Dr\\.\\s*QA\\s*cardiosurgery', 'i')))
+      .or(page.getByText(new RegExp('Dr\\. QA Cardio', 'i')))
       .first();
 
     await expect(targetDocText, `Target QA Doctor "Dr. QA Cardio" must be visible on Doctor Selection page`).toBeVisible({ timeout: 15_000 });
