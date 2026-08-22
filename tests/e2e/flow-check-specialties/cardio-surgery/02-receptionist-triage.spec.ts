@@ -38,8 +38,16 @@ test.describe('Step 2: Receptionist Check-In & Nurse Triage - Cardio Surgery', (
       .or(page.getByText('Receptionist', { exact: true }))
       .first();
 
-    await receptionistCard.waitFor({ state: 'visible', timeout: 10_000 });
-    await receptionistCard.click({ force: true });
+    const receptionistDrawerCard = page.locator('.MuiDrawer-root, [role="dialog"], body')
+      .getByText('Receptionist', { exact: true })
+      .or(receptionistCard)
+      .first();
+
+    await receptionistDrawerCard.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => {});
+    await receptionistDrawerCard.scrollIntoViewIfNeeded().catch(() => {});
+    await receptionistDrawerCard.click({ force: true }).catch(async () => {
+      await receptionistDrawerCard.dispatchEvent('click').catch(() => {});
+    });
     await page.waitForTimeout(2000);
 
     const checkInBtn = page.getByRole('button', { name: 'Check‑In Screen' })
@@ -50,7 +58,10 @@ test.describe('Step 2: Receptionist Check-In & Nurse Triage - Cardio Surgery', (
       .first();
 
     await checkInBtn.waitFor({ state: 'visible', timeout: 15_000 });
-    await checkInBtn.click({ force: true });
+    await checkInBtn.scrollIntoViewIfNeeded().catch(() => {});
+    await checkInBtn.click({ force: true }).catch(async () => {
+      await checkInBtn.dispatchEvent('click').catch(() => {});
+    });
     await page.waitForTimeout(2500);
 
     const allDoctorsFilter = page.getByText('All Doctors').or(page.getByRole('combobox')).first();

@@ -84,8 +84,8 @@ test.describe('Step 1: Patient Appointment Booking - Plastic Surgery', () => {
       const firstWord = 'Plastic Surgery'.split(' ')[0];
       const targetOption = page.getByRole('option', { name: 'Plastic Surgery', exact: true })
         .or(page.getByRole('option', { name: new RegExp('^' + 'Plastic Surgery' + '$', 'i') }))
-        .or(page.getByRole('option', { name: new RegExp(firstWord, 'i') }))
-        .or(page.locator('li[role="option"]').filter({ hasText: new RegExp(firstWord, 'i') }))
+        /* removed loose firstWord option */
+        /* removed loose firstWord li */
         .first();
 
       if (await targetOption.isVisible({ timeout: 1500 }).catch(() => false)) {

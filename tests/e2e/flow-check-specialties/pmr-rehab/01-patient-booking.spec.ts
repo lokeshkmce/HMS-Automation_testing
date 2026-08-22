@@ -84,8 +84,8 @@ test.describe('Step 1: Patient Appointment Booking - PMR & Rehab', () => {
       const firstWord = 'PMR & Rehab'.split(' ')[0];
       const targetOption = page.getByRole('option', { name: 'PMR & Rehab', exact: true })
         .or(page.getByRole('option', { name: new RegExp('^' + 'PMR .* Rehab' + '$', 'i') }))
-        .or(page.getByRole('option', { name: new RegExp(firstWord, 'i') }))
-        .or(page.locator('li[role="option"]').filter({ hasText: new RegExp(firstWord, 'i') }))
+        /* removed loose firstWord option */
+        /* removed loose firstWord li */
         .first();
 
       if (await targetOption.isVisible({ timeout: 1500 }).catch(() => false)) {

@@ -84,8 +84,8 @@ test.describe('Step 1: Patient Appointment Booking - General Surgery', () => {
       const firstWord = 'General Surgery'.split(' ')[0];
       const targetOption = page.getByRole('option', { name: 'General Surgery', exact: true })
         .or(page.getByRole('option', { name: new RegExp('^' + 'General Surgery' + '$', 'i') }))
-        .or(page.getByRole('option', { name: new RegExp(firstWord, 'i') }))
-        .or(page.locator('li[role="option"]').filter({ hasText: new RegExp(firstWord, 'i') }))
+        /* removed loose firstWord option */
+        /* removed loose firstWord li */
         .first();
 
       if (await targetOption.isVisible({ timeout: 1500 }).catch(() => false)) {
