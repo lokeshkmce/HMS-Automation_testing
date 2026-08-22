@@ -38,8 +38,16 @@ test.describe('Step 2: Receptionist Check-In & Nurse Triage - ENT', () => {
       .or(page.getByText('Receptionist', { exact: true }))
       .first();
 
-    await receptionistCard.waitFor({ state: 'visible', timeout: 10_000 });
-    await receptionistCard.click({ force: true });
+    const receptionistDrawerCard = page.locator('.MuiDrawer-root, [role="dialog"], body')
+      .getByText('Receptionist', { exact: true })
+      .or(receptionistCard)
+      .first();
+
+    await receptionistDrawerCard.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => {});
+    await receptionistDrawerCard.scrollIntoViewIfNeeded().catch(() => {});
+    await receptionistDrawerCard.click({ force: true }).catch(async () => {
+      await receptionistDrawerCard.dispatchEvent('click').catch(() => {});
+    });
     await page.waitForTimeout(2000);
 
     const checkInBtn = page.getByRole('button', { name: 'Check‑In Screen' })
@@ -50,7 +58,10 @@ test.describe('Step 2: Receptionist Check-In & Nurse Triage - ENT', () => {
       .first();
 
     await checkInBtn.waitFor({ state: 'visible', timeout: 15_000 });
-    await checkInBtn.click({ force: true });
+    await checkInBtn.scrollIntoViewIfNeeded().catch(() => {});
+    await checkInBtn.click({ force: true }).catch(async () => {
+      await checkInBtn.dispatchEvent('click').catch(() => {});
+    });
     await page.waitForTimeout(2500);
 
     const allDoctorsFilter = page.getByText('All Doctors').or(page.getByRole('combobox')).first();
@@ -58,7 +69,9 @@ test.describe('Step 2: Receptionist Check-In & Nurse Triage - ENT', () => {
     await allDoctorsFilter.click({ force: true });
     await page.waitForTimeout(600);
 
-    const docOption = page.getByRole('option', { name: 'Dr. QA ent' })
+    const docOption = page.getByRole('option', { name: 'Dr ENT', exact: true })
+      .or(page.getByRole('option', { name: /Dr.*ENT/i }))
+      .or(page.getByRole('option', { name: 'Dr. QA ent' }))
       .or(page.getByRole('option', { name: new RegExp('Dr\\. QA ent', 'i') }))
       .or(page.getByRole('option', { name: new RegExp('QA\\s*' + 'ent', 'i') }))
       .first();

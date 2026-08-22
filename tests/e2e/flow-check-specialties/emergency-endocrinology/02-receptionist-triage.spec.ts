@@ -7,7 +7,7 @@ test.describe('Step 2: Receptionist Check-In & Nurse Triage - Emergency & Endocr
     await page.goto('https://dev-hms.srivyn.in/');
 
     await page.getByRole('button', { name: 'Staff Login' }).click();
-    await page.getByRole('textbox', { name: 'Username or Email' }).fill('qa.emergency.endo@ominvva.com');
+    await page.getByRole('textbox', { name: 'Username or Email' }).fill('qa.emergency.endo@omnivva.com');
     await page.getByRole('textbox', { name: 'Password' }).click();
     await page.getByRole('textbox', { name: 'Password' }).fill('password123');
     
@@ -58,7 +58,10 @@ test.describe('Step 2: Receptionist Check-In & Nurse Triage - Emergency & Endocr
     await allDoctorsFilter.click({ force: true });
     await page.waitForTimeout(600);
 
-    const docOption = page.getByRole('option', { name: 'Dr. QA emergency.endo' })
+    const docOption = page.getByRole('option', { name: 'Dr Emergency Endocrinology', exact: true })
+      .or(page.getByRole('option', { name: /Dr.*Emergency.*Endocrinology/i }))
+      .or(page.getByRole('option', { name: /Emergency.*Endocrinology/i }))
+      .or(page.getByRole('option', { name: 'Dr. QA emergency.endo' }))
       .or(page.getByRole('option', { name: new RegExp('Dr\\. QA emergency.endo', 'i') }))
       .or(page.getByRole('option', { name: new RegExp('QA\\s*' + 'emergency', 'i') }))
       .first();

@@ -8,7 +8,7 @@ test.describe('Step 3: Doctor Consultation & Prescription - Family Medicine', ()
     await page.goto('https://dev-hms.srivyn.in/');
     await page.getByRole('button', { name: 'Staff Login' }).click();
     await page.getByRole('textbox', { name: 'Username or Email' }).click();
-    await page.getByRole('textbox', { name: 'Username or Email' }).fill('qa.family@ominvva.com');
+    await page.getByRole('textbox', { name: 'Username or Email' }).fill('qa.family@omnivva.com');
     await page.getByRole('textbox', { name: 'Password' }).click();
     await page.getByRole('textbox', { name: 'Password' }).fill('password123');
 
